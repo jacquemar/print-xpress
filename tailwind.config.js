@@ -56,6 +56,15 @@ module.exports = {
       gridTemplateRows: {
         "[auto,auto,1fr]": "auto auto 1fr",
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 45s linear infinite',
+      },
     },
   },
   plugins: [require("flowbite/plugin"), require("@tailwindcss/aspect-ratio")],

@@ -1,90 +1,102 @@
-import React, { useState, useEffect } from "react";
-import { Header, Footer } from "../../components";
-import coverPhoto from "../../assets/photocover.jpg";
-import polaroid from "../../assets/polaroid.jpg";
-import { useParams, Link } from "react-router-dom";
-import {
-  addToCart,
-  updateTotalQuantity,
-  increaseQuantity,
-} from "../../redux/slices/cartSlice";
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
+import { Header, Footer } from "../../components";
+import coverstick from "../../assets/photocover.jpg";
+import polaroid from "../../assets/polaroid.jpg";
+import { 
+  addToCart, 
+  updateTotalQuantity, 
+  increaseQuantity 
+} from "../../redux/slices/cartSlice";
 import API_URL from "../../config";
+import { FilterBar } from '../../components/ProductGallery/FilterBar';
+import { ProductCard } from '../../components/ProductCard';
+import Pagination from "../../components/Pagination";
 
 function Photos() {
-  const [selectedCategory, setSelectedCategory] = useState("photo");
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.cartItems);
-  const [productList, setProductList] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(8);
+  const [activeGenre, setActiveGenre] = useState('all');
   const totalQuantity = useSelector((state) => state.cart.cartItems.length);
-
-  const handleAddToCart = (product) => {
-    const productIndex = cartItems.findIndex((item) => item.id === product.id);
-    if (productIndex !== -1) {
-      dispatch(increaseQuantity({ productId: product.id }));
-    } else {
-      dispatch(addToCart(product));
-      dispatch(updateTotalQuantity(totalQuantity + 1));
-    }
-  };
 
   useEffect(() => {
     fetch(`${API_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
-        setProductList(data);
+        const photoProducts = data.filter(
+          product => 
+            product.category.toLowerCase() === "photo" ||
+            product.category.toLowerCase() === "cadre"
+        );
+        setProducts(photoProducts);
+        setFilteredProducts(photoProducts);
       })
       .catch((err) => {
         console.log(err.message);
       });
   }, []);
 
-  const genderList = productList.reduce(
-    (acc, product) =>
-      acc.includes(product.gender) ? acc : acc.concat(product.gender),
-    []
-  );
-  const filteredGenderList = genderList.filter((cat) =>
-    productList.some(
-      (product) =>
-        product.category.toLowerCase() === selectedCategory.toLowerCase() &&
-        product.gender === cat
-    )
-  );
-  const filterProduct = productList.filter(
-    (product) => product.category.toLowerCase() === "photo"
-  );
+  const handleAddToCart = (product) => {
+    const productIndex = cartItems.findIndex((item) => item.id === product._id);
+    if (productIndex !== -1) {
+      dispatch(increaseQuantity({ productId: product._id }));
+    } else {
+      dispatch(addToCart({ ...product, id: product._id, quantity: 1 }));
+      dispatch(updateTotalQuantity(totalQuantity + 1));
+    }
+  };
+
+  const genres = ['all', ...new Set(products.map(p => p.gender))];
+
+  const handleGenreClick = (genre) => {
+    setActiveGenre(genre);
+    if (genre === 'all') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(p => p.gender === genre);
+      setFilteredProducts(filtered);
+    }
+    setCurrentPage(1);
+  };
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      <h1 className="my-6 text-center text-2xl font-black">
-        PHOTOS / PHOTOS CADRES
-      </h1>
-      <div className="mx-12 mt-4 h-40 rounded-lg md:mx-60">
-        <img
-          src={coverPhoto}
-          alt="coverimage"
-          className="h-40 w-full rounded-lg object-cover"
-        />
-      </div>
+      
+      <main className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        {/* Titre */}
+        <h1 className="mb-6 text-center text-xl font-black sm:text-2xl lg:text-3xl">
+          PHOTOS / CADRES PHOTO
+        </h1>
 
-      <div className="mx-12 my-4 overflow-x-auto whitespace-nowrap md:mx-60">
-        {filteredGenderList.map((cat) => (
-          <button
-            key={cat}
-            className="mx-2 inline-block rounded-full bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+        {/* Image de couverture */}
+        <div className="relative mb-8 h-32 w-full sm:h-40 md:h-48 lg:h-56">
+          <img
+            src={coverstick}
+            alt="stickerimage"
+            className="h-full w-full rounded-lg object-cover shadow-md"
+          />
+        </div>
 
-      <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
-        <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-          <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
-            {/* Personnalisation card */}
-            <div className="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {/* Section des filtres */}
+        <div className="mb-6 overflow-hidden rounded-lg bg-white p-4 shadow-sm">
+          <FilterBar
+            genres={genres}
+            activeGenre={activeGenre}
+            onGenreClick={handleGenreClick}
+          />
+        </div>
+
+        {/* Personnalisation card */}
+        <div className="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6 dark:border-gray-700 dark:bg-gray-800">
               <div className="flex h-full flex-col items-center justify-center">
                 <p className="mb-4 text-center font-thin">
                   Personnaliser vos Photos
@@ -118,148 +130,32 @@ function Photos() {
               </div>
             </div>
 
-            {/* statique card 1 
-            <div className="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex h-full flex-col items-center justify-center">
-                <p className="mb-4 text-center font-thin">
-                  Personnaliser vos Photos
-                </p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="mb-4 h-16 w-16 text-gray-400"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zM12.75 12a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V18a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V12z"
-                    clipRule="evenodd"
-                  />
-                  <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-1.875a.375.375 0 01-.375-.375V5.25z" />
-                </svg>
-                <button
-                  type="button"
-                  className="cursor-not-allowed rounded-lg bg-gray-300 px-5 py-2.5 text-sm font-medium text-gray-500"
-                  disabled
-                >
-                  Personnaliser (Bientôt disponible)
-                </button>
-              </div>
-            </div>
-            */}
-
-            {/* statique card 2 */}
-            <div className="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex h-full flex-col items-center justify-center">
-                <p className="mb-4 text-center font-black">Photos Polaroïd</p>
-                <div className="h-56 w-full">
-                  <a href="https://polaroid.printpolaroids.ci/">
-                    {" "}
-                    <img
-                      className="mx-auto h-full rounded-xl object-cover"
-                      src={polaroid}
-                      alt="photo polaroid print xpress"
-                    />
-                  </a>
-                </div>
-                <a href="https://polaroid.printpolaroids.ci/">
-                  <button
-                    type="button"
-                    className="mt-6 cursor-not-allowed rounded-lg bg-pxcolor px-5 py-2.5 text-sm font-medium text-white"
-                  >
-                    📌 Commander des Polaroïds 📌
-                  </button>
-                </a>
-              </div>
-            </div>
-
-            {filterProduct.map(
-              ({ _id, cover, name, price, category, gender }) => (
-                <div
-                  key={_id}
-                  className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <div className="h-56 w-full">
-                    <Link to={`/product/${_id}`}>
-                      <img
-                        className="mx-auto h-full object-cover"
-                        src={cover}
-                        alt={name}
-                      />
-                    </Link>
-                  </div>
-
-                  <div>
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 rounded px-2.5 py-0.5 text-xs font-medium">
-                        {category}
-                      </span>
-                    </div>
-
-                    <Link
-                      to={`/product/${_id}`}
-                      className="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white"
-                    >
-                      {name}
-                    </Link>
-                    <ul className="mt-2 flex items-center gap-4">
-                      <li className="flex items-center gap-2">
-                        <svg
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeWidth="2"
-                            d="M8 7V6c0-.6.4-1 1-1h11c.6 0 1 .4 1 1v7c0 .6-.4 1-1 1h-1M3 18v-7c0-.6.4-1 1-1h11c.6 0 1 .4 1 1v7c0 .6-.4 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
-                          />
-                        </svg>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                          {gender}
-                        </p>
-                      </li>
-                    </ul>
-
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-2xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                        {price} F CFA
-                      </p>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleAddToCart({
-                            id: _id,
-                            name,
-                            price,
-                            cover,
-                            quantity: 1,
-                          })
-                        }
-                        className="hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex items-center rounded-lg bg-pxcolor px-5 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-4"
-                      >
-                        <svg
-                          className="-ms-1 me-1 h-5 w-5"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
-                        </svg>
-                        Ajouter
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
+        {/* Grille de produits */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {currentProducts.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAddToCart={() => handleAddToCart(product)}
+              />
+            ))}
           </div>
         </div>
-      </section>
+
+        {/* Pagination */}
+        {filteredProducts.length > 0 && (
+          <div className="mt-8">
+            <Pagination
+              totalProduct={filteredProducts.length}
+              productPerPage={productsPerPage}
+              setCurrentPage={setCurrentPage}
+              currentPage={currentPage}
+            />
+          </div>
+        )}
+      </main>
+
       <Footer />
     </div>
   );

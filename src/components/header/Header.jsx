@@ -1,26 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Search, Unplug } from "lucide-react"; // Utilisation d'icônes Lucide
 import API_URL from "../../config";
+
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const navigate = useNavigate();
 
   const handleResultClick = (result) => {
-    // Check if the result is a category or a product
     if (result.isCategory) {
-      // Redirect to the category page
       navigate(`/category/${result.name}`);
     } else {
-      // Redirect to the product details page
       navigate(`/product/${result._id}`);
     }
+    setIsSearchVisible(false);
   };
 
   useEffect(() => {
-    // Effectuez la recherche côté client à chaque changement de searchTerm
     if (searchTerm.trim() !== "") {
       axios
         .get(`${API_URL}/search?q=${searchTerm}`)
@@ -31,61 +30,96 @@ const Header = () => {
           console.error("Erreur lors de la recherche :", error);
         });
     } else {
-      // Réinitialisez les résultats si le terme de recherche est vide
       setSearchResults([]);
     }
   }, [searchTerm]);
 
   return (
-    <>
-      <div className="relative mb-4 mt-10 flex place-content-center">
-        <input
-          className="border-15 bg-neutral-100 w-3/4 rounded-full border-cyan-700 text-center"
-          type="text"
-          name="searchBar"
-          id="searchBar"
-          placeholder="recherchez un produit"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        {searchResults.length > 0 && (
-          <div className="search-suggestions absolute z-10 mt-2 w-full sm:w-64">
-            <ul className="mt-16 list-none rounded-md border border-gray-300 bg-white p-2 shadow-md">
-              {searchResults.map((result) => (
-                <li
-                  key={result._id}
-                  className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  onClick={() => handleResultClick(result)}
-                >
-                  {result.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className=" -ml-14 h-10 w-10 rounded-full pt-4"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-        <div className="ml-8 h-14 w-14">
-          <img src="/logo512.png" alt="logo"></img>{" "}
+    <div className="relative w-full">
+      {/* Bande de texte défilante */}
+      <div className="w-full bg-pxcolor text-white py-2 overflow-hidden">
+        <div className="whitespace-nowrap animate-marquee">
+          🌟 Bienvenue chez PrintXpress ! Profitez de nos offres spéciales sur les impressions et fournitures de bureau ! 🌟
         </div>
       </div>
 
-      <div className="search_results"></div>
-    </>
+      {/* Header */}
+      <div className="relative w-full px-4 mt-3 py-4 md:px-8">
+        <div className="flex items-center justify-between space-x-4">
+          {/* Logo */}
+          <div className="h-12 w-12 shrink-0">
+            <a href="/">
+            <img 
+              src="/logo512.png" 
+              alt="logo" 
+              className="h-full w-full object-contain"
+            /></a>
+          </div>
+
+          {/* Conteneur de recherche */}
+          <div className="relative flex-grow max-w-xl mx-auto">
+            <div className="flex items-center">
+              <input
+                className="w-full rounded-full border border-cyan-700 bg-neutral-100 px-4 py-2 
+                           text-center placeholder-gray-500 focus:outline-none 
+                           focus:ring-2 focus:ring-cyan-500 
+                           md:text-left md:pl-6"
+                type="text"
+                name="searchBar"
+                id="searchBar"
+                placeholder="Trouvez un produit"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setIsSearchVisible(true);
+                }}
+                onFocus={() => setIsSearchVisible(true)}
+              />
+              <button 
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+                onClick={() => {/* Logique optionnelle de soumission de recherche */}}
+              >
+                <Search className="h-6 w-6 text-cyan-700" />
+              </button>
+            </div>
+
+            {/* Liste déroulante des résultats de recherche */}
+            {isSearchVisible && searchResults.length > 0 && (
+              <div className="absolute z-20 mt-2 w-full rounded-md border border-gray-300 bg-white shadow-lg">
+                <ul className="max-h-60 overflow-y-auto">
+                  {searchResults.map((result) => (
+                    <li
+                      key={result._id}
+                      className="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                      onClick={() => handleResultClick(result)}
+                    >
+                      {result.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* Bouton de contact pour desktop */}
+          <Link 
+            to="https://connect2card.com/profile/printXpress" 
+            className="hidden md:block rounded-full bg-cyan-700 text-white p-2 hover:bg-cyan-600 transition-colors"
+          >
+            <Unplug className="h-10 w-10" />
+          </Link>
+
+          {/* Bouton de contact pour mobile */}
+          <Link 
+            to="https://connect2card.com/profile/printXpress" 
+            className="md:hidden rounded-full bg-pxcolor text-white p-2 hover:bg-cyan-600 transition-colors"
+          >
+            <Unplug className="h-6 w-6" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
+
 export default Header;

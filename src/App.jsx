@@ -23,7 +23,7 @@ import TicketListView from "./components/admin/TicketListView";
 import NotionManager from "./components/admin/NotionManager";
 import StickerDetailsCheckout from "./components/detailsCheckout/StickerDetailsCheckout";
 import PosterDetailsCheckout from "./components/detailsCheckout/PosterDetailsCheckout";
-import ProductList from "./components/ProductList";
+import { AllProduct } from "./components/ProductGallery/AllProduct";
 function App() {
   return (
     <BrowserRouter>
@@ -43,8 +43,7 @@ function App() {
         <Route path="/admin/add-product" element={<AddProduct />} />
         <Route path="/admin/product-list-view" element={<ProductListView />} />
         <Route path="/admin/ticket-list-view" element={<TicketListView />} />
-        <Route path="/product-list" element={<ProductList />} />
-        <Route path="/admin/NotionManager" element={<NotionManager />} />
+        <Route path="/productGrid" element={<AllProduct/>} />
         <Route
           path="/stickers/StickerDetailsCheckout"
           element={<StickerDetailsCheckout />}

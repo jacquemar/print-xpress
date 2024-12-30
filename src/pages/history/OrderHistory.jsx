@@ -8,6 +8,7 @@ import logo from "../../assets/logo192.png";
 import { Footer } from "../../components";
 import TicketDetails from "../../components/TicketDetails";
 import API_URL from "../../config";
+import { Tickets } from "lucide-react";
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const ticketList = useSelector((state) => state.ticket.ticketList);
@@ -69,73 +70,29 @@ const OrderHistory = () => {
     setSelectedTicket(ticketWithProductDetails);
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "Confirmed":
-        return (
-          <span className="inline-flex items-center rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
-            <svg
-              className="me-1 h-3 w-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 11.917 9.724 16.5 19 7.5"
-              />
-            </svg>
-            Confirmé
-          </span>
-        );
-      case "Cancelled":
-        return (
-          <span className="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-            <svg
-              className="me-1 h-3 w-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18 17.94 6M18 18 6.06 6"
-              />
-            </svg>
-            Annulé
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center rounded bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-            <svg
-              className="me-1 h-3 w-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5m3.5 5.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm-10 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"
-              />
-            </svg>
-            En cours
-          </span>
-        );
-    }
+  const getStatusBadge = (ticket) => {
+    // Définir les classes associées à chaque statut
+    const STATUS_COLORS = {
+      'Nouveau': 'bg-blue-100 text-blue-800',
+      'Confirmé': 'bg-green-100 text-green-800',
+      'Production': 'bg-yellow-100 text-yellow-800',
+      'Livraison': 'bg-indigo-100 text-indigo-800',
+      'Livré': 'bg-emerald-100 text-emerald-800',
+      'Annulé': 'bg-red-100 text-red-800'
+    };
+  
+    // Obtenez la couleur en fonction du statut
+    const status = ticket.status || 'Nouveau'; // Utilisez "Nouveau" comme valeur par défaut
+    const colorClasses = STATUS_COLORS[status];
+  
+    return (
+      <span className={`inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium ${colorClasses}`}>
+       
+        {status}
+      </span>
+    );
   };
+  
 
   const handleCloseDetails = () => {
     setSelectedTicket(null);
@@ -236,7 +193,7 @@ const OrderHistory = () => {
                     <dt className="text-base font-medium text-gray-500 dark:text-gray-400">
                       Statut:
                     </dt>
-                    <dd className="mt-1.5">{getStatusBadge(ticket.status)}</dd>
+                    <dd className="mt-1.5">{getStatusBadge(ticket)}</dd>
                   </dl>
 
                   <div className="grid w-full gap-4 sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end">
