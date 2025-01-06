@@ -10,7 +10,6 @@ import { ProductCard } from '../ProductCard';
 import { FilterButtons } from '../FilterButtons';
 import { Button } from '../ui/button';
 import { SlidersHorizontal } from 'lucide-react';
-import API_URL from "../../config";
 import Pagination from "../../components/Pagination";
 import bannerMobile from "../../assets/banner-mobile.jpg";
 import bannerDesktop from "../../assets/banner2.jpg";
@@ -46,7 +45,7 @@ const [productsPerPage] = useState(9);
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         dispatch(updateProductList(data));

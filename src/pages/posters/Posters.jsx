@@ -7,7 +7,6 @@ import {
   updateTotalQuantity, 
   increaseQuantity 
 } from "../../redux/slices/cartSlice";
-import API_URL from "../../config";
 import { FilterBar } from '../../components/ProductGallery/FilterBar';
 import { ProductCard } from '../../components/ProductCard';
 import Pagination from "../../components/Pagination";
@@ -23,7 +22,7 @@ function Posters() {
   const totalQuantity = useSelector((state) => state.cart.cartItems.length);
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         const posterProducts = data.filter(
@@ -98,7 +97,7 @@ function Posters() {
         <div className="relative rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6 dark:border-gray-700 dark:bg-gray-800">
               <div className="flex h-full flex-col items-center justify-center">
                 <p className="mb-4 text-center font-thin">
-                  Personnaliser vos Photos
+                  Personnaliser vos Posters
                 </p>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

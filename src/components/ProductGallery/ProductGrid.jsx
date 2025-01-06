@@ -10,9 +10,7 @@ import { ProductCard } from '../ProductCard';
 import { FilterButtons } from '../FilterButtons';
 import { Button } from '../ui/button';
 import { SlidersHorizontal } from 'lucide-react';
-import API_URL from "../../config";
 import Pagination from "../Pagination";
-import Header from "../header/Header";
 import Footer from "../footer/Footer";
 
 export const ProductGrid = () => {
@@ -29,7 +27,7 @@ export const ProductGrid = () => {
   const [productsPerPage] = useState(9);
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         dispatch(updateProductList(data));

@@ -10,7 +10,7 @@ const Categorie = () => {
   useEffect(() => {
     // Récupérer les catégories depuis la base de données
     axios
-      .get(`${API_URL}/categories`)
+      .get(`${import.meta.env.VITE_APP_BASE_URL}/categories`)
       .then((response) => {
         setCategories(response.data);
       })

@@ -22,7 +22,6 @@ import calendarShipping from "../../assets/calendar-01.png";
 import om from "../../assets/om.png";
 import wave from "../../assets/wave.png";
 import cash from "../../assets/cash.png";
-import API_URL from "../../config";
 
 const communesList = [
   "Marcory",
@@ -82,9 +81,8 @@ const Checkout = () => {
     };
 
     const basePrice = deliveryPrices[selectedCommune] || 0;
-    const methodPrice = selectedMethod === "express" ? 1500 : 0;
-
-    return basePrice + methodPrice;
+    const expressDelivery = selectedMethod === "express" ? 1500 : 0;
+    return basePrice + expressDelivery;
   };
 
   const [selectedCommune, setSelectedCommune] = useState("");
@@ -123,7 +121,11 @@ const Checkout = () => {
   // Appel de la fonction de validation à chaque fois que les champs sont modifiés
   useEffect(() => {
     validateForm();
-  }, [phoneNumber, selectedCommune, selectedPaymentMethod]);
+    const newDeliveryPrice = calculateDeliveryPrice(selectedCommune, selectedMethod);
+    setDeliveryPrice(newDeliveryPrice);
+  }, [phoneNumber, selectedCommune, selectedPaymentMethod, selectedMethod]);
+
+
 
   const handlePaymentMethodChange = (event) => {
     setSelectedPaymentMethod(event.target.value);
@@ -139,13 +141,21 @@ const Checkout = () => {
     setDeliveryPrice(newDeliveryPrice.toString());
   };
 
+  const calculateTotalBrut = () => {
+    const cartTotal = totalPrice || 0;
+    const personalizationTotal = persoPrice || 0;
+    return cartTotal + personalizationTotal;
+  };
+
   const cartItems = useSelector((state) => state.cart.cartItems);
   const cartItemPerso = useSelector((state) => state.cartPerso.cartItemPerso);
   const totalQuantity = useSelector((state) => state.cart.totalQuantity);
   const totalPrice = useSelector((state) => state.cart.totalPrice);
   const ticketNumber = useSelector((state) => state.ticket.ticketNumber);
   const persoPrice = useSelector((state) => state.cartPerso.persoPrice);
-  const netAPayer = totalPrice + parseFloat(deliveryPrice) + persoPrice;
+
+  const netAPayer = calculateTotalBrut() + deliveryPrice;
+
   console.log(persoPrice);
   const dispatch = useDispatch();
 
@@ -191,7 +201,7 @@ const Checkout = () => {
         orderDate: currentDate,
       };
 
-      const response = await axios.post(`${API_URL}/create-order`, orderData);
+      const response = await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/create-order`, orderData);
 
       if (response.data.success) {
         dispatch(addTicketNumber(newTicketNumber));
@@ -647,7 +657,7 @@ const Checkout = () => {
             <div className="mt-6 border-b border-t py-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-900">Total Brut</p>
-                <p className="font-semibold text-gray-900">{ttcAPayer}</p>
+                <p className="font-semibold text-gray-900">{calculateTotalBrut()}</p>
               </div>
 
               <div className="flex items-center justify-between">

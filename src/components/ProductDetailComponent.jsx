@@ -7,7 +7,6 @@ import {
   updateTotalQuantity,
 } from "../redux/slices/cartSlice";
 import Footer from "./footer/Footer";
-import API_URL from "../config";
 function ProductDetailComponent() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -29,7 +28,7 @@ function ProductDetailComponent() {
   }
 
   useEffect(() => {
-    fetch(`${API_URL}/product/${id}`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/product/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProductItem(data);

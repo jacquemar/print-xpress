@@ -7,8 +7,6 @@ import {
 import logo from "../../assets/logo192.png";
 import { Footer } from "../../components";
 import TicketDetails from "../../components/TicketDetails";
-import API_URL from "../../config";
-import { Tickets } from "lucide-react";
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const ticketList = useSelector((state) => state.ticket.ticketList);
@@ -20,7 +18,7 @@ const OrderHistory = () => {
       if (ticketList && ticketList.length > 0) {
         try {
           const response = await fetch(
-            `${API_URL}/tickets-by-numbers?ticketList=${ticketList.join(",")}`
+            `${import.meta.env.VITE_APP_BASE_URL}/tickets-by-numbers?ticketList=${ticketList.join(",")}`
           );
           if (!response.ok) {
             throw new Error("Erreur lors de la récupération des tickets");
@@ -43,7 +41,7 @@ const OrderHistory = () => {
 
   const fetchProductDetails = async (productId) => {
     try {
-      const response = await fetch(`${API_URL}/product/${productId}`);
+      const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/product/${productId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch product details for ID: ${productId}`);
       }

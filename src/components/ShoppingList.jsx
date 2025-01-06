@@ -7,23 +7,20 @@ import {
   updateTotalQuantity,
 } from "../redux/slices/cartSlice";
 import { ProductCard } from './ProductCard';
-import { FilterButtons } from './FilterButtons';
 import { Button } from './ui/button';
 import { Eye, } from 'lucide-react';
-import API_URL from "../config";
-import Pagination from "../components/Pagination";
+
 
 
 
 export const ShoppingList = () => {
-  const [showFilters, setShowFilters] = useState(false);
   const dispatch = useDispatch();
   const productList = useSelector((state) => state.product.productList);
   const cartItems = useSelector((state) => state.cart.cartItems);
   const totalQuantity = useSelector((state) => state.cart.cartItems.length);
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         dispatch(updateProductList(data));

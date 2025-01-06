@@ -7,7 +7,6 @@ import {
   updateTotalQuantity, 
   increaseQuantity 
 } from "../../redux/slices/cartSlice";
-import API_URL from "../../config";
 import { FilterBar } from '../../components/ProductGallery/FilterBar';
 import { ProductCard } from '../../components/ProductCard';
 import Pagination from "../../components/Pagination";
@@ -23,7 +22,7 @@ function Stickers() {
   const totalQuantity = useSelector((state) => state.cart.cartItems.length);
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         const stickerProducts = data.filter(

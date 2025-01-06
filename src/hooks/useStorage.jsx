@@ -1,6 +1,5 @@
-import { async } from "@firebase/util";
 import { useState, useEffect } from "react";
-import { db, idb } from "../firebase/config";
+import { idb } from "../firebase/config";
 import { getStorage, ref } from "firebase/storage";
 
 const useStorage = (file) => {

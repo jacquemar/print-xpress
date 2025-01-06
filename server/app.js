@@ -348,8 +348,6 @@ app.post("/upload-temp", upload.array("files", 100), async (req, res) => {
 const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
 
 app.post("/create-order", async (req, res) => {
-  //console.log("Données reçues:", req.body);
-
   const currentDate = new Date().toISOString();
   const {
     dbId = "2e332d43-1242-4118-a0ce-b7b94a48ecfe",
@@ -373,6 +371,7 @@ app.post("/create-order", async (req, res) => {
   }
 
   try {
+    // Sauvegarde du ticket dans MongoDB reste inchangée
     const ticket = new Ticket({
       cartItems: cartItems.map((item) => ({
         productId: item.id,
@@ -401,53 +400,12 @@ app.post("/create-order", async (req, res) => {
     await ticket.save();
     console.log("Ticket sauvegardé:", ticket);
 
-    const uploadFilesToDropbox = async (cartItemPerso) => {
-      try {
-        const results = await Promise.all(
-          cartItemPerso.map(async (item) => {
-            const filePaths = item.filePaths;
-            const uploadResults = await Promise.all(
-              filePaths.map(async (filePath) => {
-                try {
-                  // Lire le contenu du fichier depuis son chemin
-                  const fileContent = fs.readFileSync(filePath);
-
-                  // Obtenir le nom du fichier à partir du chemin
-                  const fileName = path.basename(filePath);
-                  const dropboxPath = `/NomDuDossier/${ticketNumber}/${fileName}`;
-
-                  // Télécharger le fichier vers Dropbox en utilisant le contenu du fichier
-                  const response = await dbx.filesUpload({
-                    path: dropboxPath,
-                    contents: fileContent,
-                    mode: { ".tag": "overwrite" }, // Écraser le fichier s'il existe déjà
-                  });
-
-                  console.log("File uploaded successfully:", response);
-
-                  return response;
-                } catch (error) {
-                  console.error("Error uploading file to Dropbox:", error);
-                  throw error;
-                }
-              })
-            );
-            return uploadResults;
-          })
-        );
-
-        console.log("Files uploaded successfully to Dropbox:", results);
-        return results;
-      } catch (error) {
-        console.error("Error uploading files to Dropbox:", error);
-        throw error;
-      }
-    };
-
+    // La fonction uploadFilesToDropbox reste inchangée
     if (cartItemPerso && cartItemPerso.length > 0) {
       await uploadFilesToDropbox(cartItemPerso);
     }
 
+    // Modification de la création de la page Notion
     const newPage = await notion.pages.create({
       parent: {
         type: "database_id",
@@ -469,7 +427,7 @@ app.post("/create-order", async (req, res) => {
           },
         },
         Prix: {
-          number: totalPrice,
+          number: parseFloat(totalPrice),
         },
         Date: {
           date: {
@@ -477,7 +435,7 @@ app.post("/create-order", async (req, res) => {
           },
         },
         "Prix de livraison": {
-          phone_number: deliveryPrice,
+          number: parseFloat(deliveryPrice), // Modification ici : changement de phone_number à number
         },
         Téléphone: {
           phone_number: phoneNumber,
@@ -506,8 +464,7 @@ app.post("/create-order", async (req, res) => {
     console.error("Erreur lors de la création de la commande:", error);
     return res.status(500).json({
       success: false,
-      error:
-        "Erreur lors de l'enregistrement du ticket ou de la commande dans Notion",
+      error: "Erreur lors de l'enregistrement du ticket ou de la commande dans Notion",
       details: error.message,
     });
   }

@@ -7,7 +7,6 @@ import ProductItem from "../../components/ProductItem";
 import Pagination from "../../components/Pagination";
 import uploadImg from "../../assets/products/upload-01-01.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import API_URL from "../../config";
 import {
   addToCart,
   updateTotalQuantity,
@@ -33,7 +32,7 @@ function Cartes() {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/list`)
+    fetch(`${import.meta.env.VITE_APP_BASE_URL}/list`)
       .then((res) => res.json())
       .then((data) => {
         setProductList(data);

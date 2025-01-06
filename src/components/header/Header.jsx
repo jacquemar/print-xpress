@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Unplug } from "lucide-react"; // Utilisation d'icônes Lucide
-import API_URL from "../../config";
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +21,7 @@ const Header = () => {
   useEffect(() => {
     if (searchTerm.trim() !== "") {
       axios
-        .get(`${API_URL}/search?q=${searchTerm}`)
+        .get(`${import.meta.env.VITE_APP_BASE_URL}/search?q=${searchTerm}`)
         .then((response) => {
           setSearchResults(response.data);
         })

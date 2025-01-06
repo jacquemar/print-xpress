@@ -19,8 +19,6 @@ const TicketDetails = ({ ticket, onClose }) => {
     );
   }
 
-  console.log("Ticket data in TicketDetails:", ticket); // Pour le débogage
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-600 bg-opacity-50">
       <div className="w-full max-w-4xl rounded-lg bg-white p-6 dark:bg-gray-800">
@@ -83,20 +81,7 @@ const TicketDetails = ({ ticket, onClose }) => {
               Aucun produit dans cette commande.
             </p>
           )}
-{/*
-          {ticket.cartItemPerso && (
-            <div className="flex items-center space-x-4 py-4">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Article personnalisé
-                </p>
-                <pre className="text-sm text-gray-500 dark:text-gray-400">
-                  {JSON.stringify(ticket.cartItemPerso, null, 2)}
-                </pre>
-              </div>
-            </div>
-          )}
-          */}
+
         </div>
 
         <div className="mt-6 space-y-2 border-t border-gray-200 pt-4 dark:border-gray-700">
